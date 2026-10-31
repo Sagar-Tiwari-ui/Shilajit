@@ -1,13 +1,1376 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Display Image</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adventures of Shura — Master Prop & Weapon Registry: Common Enemy Swords</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --parchment-bg: #f4ebd9;
+      --parchment-dark: #e5d7b8;
+      --ink-black: #1b1714;
+      --ink-sepia: #4a3b2c;
+      --accent-ember: #c0392b;
+    }
+
+    body {
+      background-color: #231d18;
+      background-image: radial-gradient(circle at 50% 25%, #3a3028 0%, #181310 100%);
+      font-family: 'Crimson Pro', Georgia, serif;
+      color: var(--ink-black);
+      overflow-x: hidden;
+    }
+
+    .font-title { font-family: 'Cinzel', serif; }
+    .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+
+    .parchment-sheet {
+      background-color: var(--parchment-bg);
+      background-image: 
+        radial-gradient(rgba(139, 109, 76, 0.08) 1px, transparent 0),
+        radial-gradient(rgba(139, 109, 76, 0.06) 1px, var(--parchment-bg) 0);
+      background-size: 24px 24px;
+      background-position: 0 0, 12px 12px;
+      box-shadow: 0 20px 55px rgba(0, 0, 0, 0.7), inset 0 0 65px rgba(120, 88, 50, 0.28);
+      border: 2px solid #5c4938;
+    }
+
+    .parchment-card {
+      background: rgba(249, 243, 229, 0.92);
+      border: 1.5px solid #8c7355;
+      box-shadow: inset 0 0 18px rgba(139, 109, 76, 0.14), 2px 3px 0px rgba(40, 30, 20, 0.25);
+    }
+
+    .ink-btn {
+      background: #efe4ca;
+      border: 1.5px solid #2b231d;
+      box-shadow: 2px 2px 0px #2b231d;
+      transition: all 0.12s ease;
+      cursor: pointer;
+    }
+    .ink-btn:hover { background: #e5d4b1; transform: translate(-1px, -1px); box-shadow: 3px 3px 0px #2b231d; }
+    .ink-btn:active, .ink-btn.active { background: #2b231d; color: #f6eedc; transform: translate(1px, 1px); box-shadow: 1px 1px 0px #2b231d; }
+
+    .attr-list li { margin: 3px 0; padding-left: 14px; position: relative; }
+    .attr-list li::before { content: '✒'; position: absolute; left: 0; font-size: 10px; color: #8c7355; top: 2px; }
+
+    input[type="range"] { accent-color: #2b231d; cursor: pointer; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #dfd1b4; }
+    ::-webkit-scrollbar-thumb { background: #6e5842; border-radius: 4px; }
+
+    @keyframes glintSweep {
+      0%, 100% { opacity: 0.15; }
+      50% { opacity: 0.45; }
+    }
+    .blade-glint { animation: glintSweep 3.2s infinite ease-in-out; }
+  </style>
 </head>
-<body>
+<body class="min-h-screen p-2 sm:p-5 md:p-7 select-none">
 
-    <h2>My Image</h2>
-    <img src="shilajit report.jpg" alt="Sample Image" width="400">
+  <!-- SHARED STORYBOOK SVG FILTERS & PATTERNS -->
+  <svg width="0" height="0" class="absolute pointer-events-none" aria-hidden="true">
+    <defs>
+      <filter id="ink-sketch" x="-20%" y="-20%" width="140%" height="140%" filterUnits="objectBoundingBox">
+        <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="3" seed="14" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.35" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+      </filter>
+      <pattern id="ink-hatch" width="6" height="6" patternTransform="rotate(35 0 0)" patternUnits="userSpaceOnUse">
+        <line x1="0" y1="0" x2="0" y2="6" stroke="#1b1714" stroke-width="0.65" stroke-opacity="0.18" />
+      </pattern>
+      <pattern id="steel-grain" width="8" height="8" patternTransform="rotate(-15 0 0)" patternUnits="userSpaceOnUse">
+        <line x1="0" y1="0" x2="8" y2="0" stroke="#1b1714" stroke-width="0.4" stroke-opacity="0.12" />
+      </pattern>
+    </defs>
+  </svg>
 
+  <div class="max-w-7xl mx-auto parchment-sheet rounded-xl p-4 sm:p-6 md:p-8">
+
+    <!-- TOP ARCHITECTURAL HEADER & CONTROLS -->
+    <header class="border-b-2 border-[#3b2f24] pb-5 mb-6">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+        <div>
+          <div class="flex flex-wrap items-center gap-2 mb-1">
+            <span class="px-2.5 py-0.5 text-xs font-mono-code uppercase tracking-widest bg-[#2b231d] text-[#f4ecd8] rounded">
+              GLOBAL PROP &amp; WEAPON PROTOCOL • ARMORY LOCK v1.0
+            </span>
+            <span class="px-2.5 py-0.5 text-xs font-mono-code uppercase tracking-wider bg-[#c0392b]/15 text-[#7f1d1d] border border-[#c0392b]/40 rounded font-semibold">
+              TIER 1: COMMON ENEMY SWORDS (6 CANONICAL MODELS)
+            </span>
+          </div>
+          <h1 class="font-title text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-[#1b1714]">
+            ADVENTURES OF SHURA — COMMON ENEMY SWORDS REGISTRY
+          </h1>
+          <p class="text-sm sm:text-base text-[#4a3b2c] italic mt-0.5">
+            Standardized hand-drawn weapon props scaled to the <strong>100u Human Standard (1u = 3.4px)</strong> with locked <strong>(0, 0) Grip Pivot Origins</strong> for drop-in attachment to any character's <code class="font-mono-code text-xs bg-[#e5d7b8] px-1 rounded">prop-slot</code>.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="toggleGridBtn" class="ink-btn active px-3 py-1.5 rounded text-xs font-bold">Ruler Grid: ON</button>
+          <button id="togglePivotBtn" class="ink-btn active px-3 py-1.5 rounded text-xs font-bold">Grip Pivot (0,0): ON</button>
+          <button id="toggleWearBtn" class="ink-btn active px-3 py-1.5 rounded text-xs font-bold">Battle Wear &amp; Rust: ON</button>
+          <button id="toggleAudioBtn" class="ink-btn active px-3 py-1.5 rounded text-xs font-bold">⚔ Metal SFX: ON</button>
+          <button id="openExportModalBtn" class="ink-btn px-3.5 py-1.5 rounded text-xs font-bold bg-[#2b231d] text-[#f4ecd8]">Export SVG/JS Weapon Module</button>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE WEAPON SELECTOR & COMBAT RIG TESTER BAR -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 items-end bg-[#e5d7b8]/50 p-3.5 rounded-lg border border-[#8c7355]/50">
+        <!-- Active Weapon Selector -->
+        <div class="lg:col-span-4">
+          <label class="block font-mono-code text-[11px] uppercase text-[#4a3b2c] font-bold mb-1">Active Blueprint &amp; Rig Weapon:</label>
+          <select id="swordSelect" class="w-full bg-[#f8f1e0] border-2 border-[#2b231d] rounded px-2.5 py-1.5 text-xs sm:text-sm font-bold cursor-pointer">
+            <option value="SWD_BANDIT_SHORT">1. Rusty Bandit Shortsword (24u • Bandits &amp; Thieves)</option>
+            <option value="SWD_MILITIA_BROAD">2. Militia Iron Broadsword (30u • Footmen &amp; Patrols)</option>
+            <option value="SWD_RAIDER_FALCHION">3. Jagged Raider Falchion (28u • Brigand Enforcers)</option>
+            <option value="SWD_MERC_SABRE">4. Mercenary Curved Scimitar (31u • Outriders &amp; Raiders)</option>
+            <option value="SWD_IRON_ARMING">5. Weathered Soldier Arming Sword (33u • Veteran Guards)</option>
+            <option value="SWD_SCRAP_BLADE">6. Scavenger Crude Scrap-Blade (22u • Desperate Outlaws)</option>
+          </select>
+        </div>
+
+        <!-- Combat Action Tester -->
+        <div class="lg:col-span-5">
+          <label class="block font-mono-code text-[11px] uppercase text-[#4a3b2c] font-bold mb-1">Live Enemy Hand-Grip &amp; Combat Swing Test:</label>
+          <div class="flex flex-wrap gap-1.5">
+            <button data-combat="idle" class="combat-btn ink-btn active py-1 px-2.5 rounded text-xs font-bold">1. Guard Idle</button>
+            <button data-combat="slash" class="combat-btn ink-btn py-1 px-2.5 rounded text-xs font-bold">2. Heavy Slash</button>
+            <button data-combat="thrust" class="combat-btn ink-btn py-1 px-2.5 rounded text-xs font-bold">3. Forward Thrust</button>
+            <button data-combat="parry" class="combat-btn ink-btn py-1 px-2.5 rounded text-xs font-bold">4. High Parry</button>
+            <button data-combat="inspect" class="combat-btn ink-btn py-1 px-2.5 rounded text-xs font-bold">5. Slow Flourish</button>
+          </div>
+        </div>
+
+        <!-- Manual Angle & Speed Sliders -->
+        <div class="lg:col-span-3 flex flex-col gap-1.5">
+          <div class="flex items-center justify-between text-xs font-mono-code">
+            <span>Wrist Pitch Offset: <strong id="wristAngleLabel">0°</strong></span>
+            <span id="fpsCounter" class="px-1.5 py-0.5 bg-[#2b231d] text-[#f4ecd8] rounded text-[10px]">60 FPS</span>
+          </div>
+          <input type="range" id="wristAngleSlider" min="-45" max="45" step="1" value="0" class="w-full" />
+        </div>
+      </div>
+    </header>
+
+    <!-- =====================================================================
+         SECTION 1: ALL 6 COMMON ENEMY SWORDS — MASTER SCALE LINEUP (0u–36u)
+         ===================================================================== -->
+    <section class="parchment-card rounded-xl p-4 sm:p-6 mb-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-3 mb-4 border-b border-[#8c7355]/40">
+        <div>
+          <h2 class="font-title text-lg sm:text-xl font-bold text-[#1b1714]">
+            1. MASTER SCALE LINEUP — ALL 6 COMMON ENEMY SWORDS (ALIGNED AT GRIP ORIGIN 0u)
+          </h2>
+          <p class="text-xs sm:text-sm text-[#4a3b2c]">
+            Click any sword in the rack below to load it into the <strong>3-Angle Blueprint &amp; Live Hand-Grip Simulator</strong>. Red crosshair marks the locked <code class="font-mono-code">(0, 0)</code> palm grip pivot.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-mono-code">
+          <span class="px-2 py-0.5 bg-white/80 rounded border border-[#8c7355]">Scale: 1u = 3.4px</span>
+          <span class="px-2 py-0.5 bg-[#c0392b]/15 text-[#7f1d1d] rounded border border-[#c0392b]/40 font-bold">⊕ = Hand Grip Center (0,0)</span>
+        </div>
+      </div>
+
+      <div class="w-full overflow-x-auto">
+        <svg id="swordLineupSvg" viewBox="0 0 1280 410" class="w-full h-auto min-w-[920px] select-none">
+          <g class="weapon-grid-layer"></g>
+          <g id="lineupSlotsLayer"></g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 2: 3-VIEW ORTHOGRAPHIC BLUEPRINT + LIVE HAND-GRIP & SWING RIG
+         ===================================================================== -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+
+      <!-- LEFT 7 COLS: 3-VIEW WEAPON TURNAROUND (FLAT 0°, 3/4 BEVEL, 90° EDGE) -->
+      <section class="lg:col-span-7 parchment-card rounded-xl p-4 sm:p-5 flex flex-col justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-3 border-b border-[#8c7355]/40">
+          <div>
+            <span id="blueprintCodeBadge" class="font-mono-code text-[11px] px-2 py-0.5 bg-[#2b231d] text-[#f4ecd8] rounded uppercase">SWD_BANDIT_SHORT</span>
+            <h3 id="blueprintTitle" class="font-title text-lg sm:text-xl font-bold text-[#1b1714] mt-1">
+              Rusty Bandit Shortsword — 3-Angle Orthographic Sheet
+            </h3>
+          </div>
+          <div id="blueprintPaletteSwatches" class="flex items-center gap-1.5 flex-wrap"></div>
+        </div>
+
+        <div class="w-full overflow-x-auto my-auto">
+          <svg id="swordBlueprintSvg" viewBox="0 0 720 390" class="w-full h-auto min-w-[520px] select-none">
+            <g class="weapon-grid-layer"></g>
+            <!-- 3 Orthographic Views -->
+            <g id="bp-slot-flat" transform="translate(135, 310)"></g>
+            <g id="bp-slot-threeQuarter" transform="translate(360, 310)"></g>
+            <g id="bp-slot-edge" transform="translate(575, 310)"></g>
+
+            <!-- View Labels -->
+            <g font-family="Cinzel, serif" font-weight="700" font-size="11.5" fill="#2b231d" text-anchor="middle">
+              <rect x="55" y="352" width="160" height="24" rx="4" fill="#e5d7b8" stroke="#4a3b2c" stroke-width="1.2"/>
+              <text x="135" y="368">1. FLAT PROFILE (0°)</text>
+
+              <rect x="270" y="352" width="180" height="24" rx="4" fill="#e5d7b8" stroke="#4a3b2c" stroke-width="1.2"/>
+              <text x="360" y="368">2. 3/4 BEVEL VIEW (45°)</text>
+
+              <rect x="490" y="352" width="170" height="24" rx="4" fill="#e5d7b8" stroke="#4a3b2c" stroke-width="1.2"/>
+              <text x="575" y="368">3. SPINE / EDGE (90°)</text>
+            </g>
+            <g id="bpDimensionsLayer"></g>
+          </svg>
+        </div>
+      </section>
+
+      <!-- RIGHT 5 COLS: LIVE ENEMY ARM & LAYERED HAND-GRIP SIMULATOR -->
+      <section class="lg:col-span-5 parchment-card rounded-xl p-4 sm:p-5 flex flex-col justify-between">
+        <div class="pb-3 mb-3 border-b border-[#8c7355]/40">
+          <div class="flex items-center justify-between">
+            <span class="font-mono-code text-[11px] px-2 py-0.5 bg-[#c0392b] text-white rounded font-bold uppercase">LIVE GRIP &amp; SWING RIG</span>
+            <span class="font-mono-code text-[11px] text-[#4a3b2c]">Hilt Sandwich Layering: Palm → Hilt → Fingers</span>
+          </div>
+          <h3 class="font-title text-lg sm:text-xl font-bold text-[#1b1714] mt-1">
+            Enemy Hand Attachment &amp; Arc Tester
+          </h3>
+          <p class="text-xs text-[#4a3b2c]">
+            Verifies that the handle sits naturally inside the palm while the 4 fingers &amp; thumb wrap around the grip and the blade points cleanly away.
+          </p>
+        </div>
+
+        <div class="w-full overflow-hidden bg-[#efe4ca]/60 rounded-lg border border-[#8c7355]/40 my-auto">
+          <svg id="combatTesterSvg" viewBox="0 0 480 360" class="w-full h-auto select-none">
+            <!-- Subtle Target Dummy Reference Guide -->
+            <g opacity="0.22" stroke="#4a3b2c" stroke-width="1.5" stroke-dasharray="4 4" fill="none">
+              <circle cx="370" cy="175" r="42" />
+              <line x1="370" y1="120" x2="370" y2="290" />
+              <line x1="320" y1="175" x2="420" y2="175" />
+              <text x="370" y="110" font-family="JetBrains Mono, monospace" font-size="9" fill="#4a3b2c" text-anchor="middle" stroke="none">STRIKE ZONE</text>
+            </g>
+
+            <!-- Slash Motion Trail Arc -->
+            <path id="slashTrailArc" d="M 250 65 Q 385 165, 260 285" fill="none" stroke="#c0392b" stroke-width="10" stroke-linecap="round" opacity="0" />
+
+            <!-- Articulated Enemy Shoulder -> Upper Arm -> Forearm -> Layered Hand + Sword -->
+            <g id="testerShoulderRoot" transform="translate(115, 175)" filter="url(#ink-sketch)">
+              <!-- Enemy Bracer / Tunic Upper Arm -->
+              <g id="testerUpperArm">
+                <path d="M -12 -10 C -16 14, -15 44, -12 65 L 12 65 C 15 44, 16 14, 12 -10 Z"
+                      fill="#4a3b2c" stroke="#1b1714" stroke-width="2.4" stroke-linejoin="round" />
+                <rect x="-14" y="56" width="28" height="9" rx="3" fill="#2b231d" stroke="#1b1714" stroke-width="2" />
+
+                <!-- Enemy Forearm & Leather Bracer -->
+                <g id="testerForearm" transform="translate(0, 64)">
+                  <path d="M -11 0 C -14 18, -12 42, -8 62 L 8 62 C 12 42, 14 18, 11 0 Z"
+                        fill="#dfb088" stroke="#1b1714" stroke-width="2.3" stroke-linejoin="round" />
+                  <!-- Studded Leather Enemy Wrist Bracer -->
+                  <path d="M -11 26 L 11 26 L 9 54 L -9 54 Z" fill="#5c4033" stroke="#1b1714" stroke-width="2.1" stroke-linejoin="round" />
+                  <circle cx="-4" cy="34" r="1.6" fill="#d4ac0d" /><circle cx="4" cy="34" r="1.6" fill="#d4ac0d" />
+                  <circle cx="-4" cy="46" r="1.6" fill="#d4ac0d" /><circle cx="4" cy="46" r="1.6" fill="#d4ac0d" />
+
+                  <!-- WRIST & HAND GRIP PIVOT (0, 62) -->
+                  <g id="testerWristGroup" transform="translate(0, 62)">
+                    <!-- LAYER 1 (BACK): Palm Base & Back of Hand -->
+                    <path d="M -8 -2 C -11 6, -10 16, -2 19 C 6 20, 11 14, 9 3 C 8 -1, 4 -3, -8 -2 Z"
+                          fill="#dfb088" stroke="#1b1714" stroke-width="2.2" stroke-linejoin="round" />
+
+                    <!-- LAYER 2 (MIDDLE): THE WEAPON PROP SLOT AT EXACT (0, 8) GRIP CENTER -->
+                    <!-- Rotated +90 deg so the sword handle sits horizontally through the fist and blade extends forward (+X) -->
+                    <g id="testerWeaponMount" transform="translate(2, 8) rotate(90)"></g>
+
+                    <!-- LAYER 3 (FRONT): Wrapped Fingers & Thumb Clamping Over the Sword Handle -->
+                    <g id="testerWrappedFingers" transform="translate(0, 8)">
+                      <!-- 4 Curled Knuckles / Fingers Clamping Handle -->
+                      <rect x="-8.5" y="-5.5" width="4.5" height="10" rx="2.2" fill="#f2c6a0" stroke="#1b1714" stroke-width="1.8" />
+                      <rect x="-3.8" y="-6.0" width="4.5" height="10.5" rx="2.2" fill="#f2c6a0" stroke="#1b1714" stroke-width="1.8" />
+                      <rect x="0.9" y="-5.8" width="4.4" height="10" rx="2.2" fill="#f2c6a0" stroke="#1b1714" stroke-width="1.8" />
+                      <rect x="5.2" y="-5.0" width="4.0" height="9" rx="2.0" fill="#f2c6a0" stroke="#1b1714" stroke-width="1.8" />
+                      <!-- Clamped Thumb Locking Over Index & Grip -->
+                      <path d="M -7 -5 C -2 -9, 5 -7, 6 -2 C 5 2, -2 1, -7 -2 Z"
+                            fill="#f2c6a0" stroke="#1b1714" stroke-width="1.9" stroke-linejoin="round" />
+                    </g>
+                  </g>
+                </g>
+              </g>
+              <!-- Shoulder Pivot Indicator -->
+              <circle cx="0" cy="0" r="4" fill="#c0392b" stroke="#fff" stroke-width="1.2" class="pivot-marker" />
+            </g>
+          </svg>
+        </div>
+
+        <div id="activeWeaponSpecsBar" class="mt-3 grid grid-cols-3 gap-2 text-center font-mono-code text-xs"></div>
+      </section>
+
+    </div>
+
+    <!-- =====================================================================
+         SECTION 3: COMPLETE 6-SWORD ATTRIBUTE & LORE REGISTRY CARDS
+         ===================================================================== -->
+    <section>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-title text-lg sm:text-xl font-bold text-[#1b1714]">
+          3. COMMON ENEMY SWORDS — CANONICAL SPECIFICATIONS &amp; USAGE REGISTRY
+        </h2>
+        <span class="font-mono-code text-xs text-[#4a3b2c]">Click any card to inspect weapon</span>
+      </div>
+      <div id="weaponCardsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+    </section>
+
+    <!-- =====================================================================
+         MODAL: EXPORTABLE SVG / JS WEAPON PROP MODULE
+         ===================================================================== -->
+    <div id="exportModal" class="fixed inset-0 bg-black/75 z-50 hidden items-center justify-center p-4">
+      <div class="parchment-sheet max-w-5xl w-full rounded-xl p-5 sm:p-6 max-h-[90vh] flex flex-col border-2 border-[#2b231d]">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-[#5c4938]">
+          <div>
+            <h3 class="font-title text-xl font-bold text-[#1b1714]">
+              COMMON ENEMY SWORDS — REUSABLE SVG/JS PROP MODULE
+            </h3>
+            <p class="text-xs text-[#4a3b2c]">
+              Drop-in `CommonEnemySwordsRegistry.renderWeapon(weaponId, view, options)` function with `(0,0)` hand-grip origin for any character rig.
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="copyCodeBtn" class="ink-btn px-3 py-1.5 rounded text-xs font-bold bg-[#2b231d] text-[#f4ecd8]">Copy Module Code</button>
+            <button id="closeModalBtn" class="ink-btn px-3 py-1.5 rounded text-xs font-bold">Close ✕</button>
+          </div>
+        </div>
+        <pre id="exportCodeBlock" class="font-mono-code text-xs bg-[#1e1915] text-[#f4ecd8] p-4 rounded-lg overflow-auto flex-1 leading-relaxed select-all"></pre>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- =======================================================================
+       MASTER WEAPON PROP REGISTRY & PROCEDURAL SVG GENERATOR ENGINE
+       ======================================================================= -->
+  <script>
+    /**
+     * =========================================================================
+     * 1. CANONICAL COMMON ENEMY SWORDS REGISTRY (1u = 3.4px)
+     * =========================================================================
+     * Coordinate Convention for all Weapon Rigs:
+     * - (0, 0) is the EXACT HAND GRIP ORIGIN (center of the handle where fingers clamp).
+     * - Negative Y (-Y) extends UPWARD along the blade toward the tip.
+     * - Positive Y (+Y) extends DOWNWARD toward the pommel.
+     * - When mounted in a character's `prop-slot` rotated +90°, the handle lies
+     *   inside the fist and the blade extends cleanly away along +X!
+     */
+    const UNIT_PX = 3.4;
+
+    const COMMON_SWORDS_REGISTRY = Object.freeze({
+      SWD_BANDIT_SHORT: {
+        id: "SWD_BANDIT_SHORT",
+        name: "Rusty Bandit Shortsword",
+        wielders: "Roadside Bandits, Petty Thieves, Outlaw Lookouts",
+        rarity: "Common Tier 1",
+        totalUnits: 24,
+        bladeUnits: 17,
+        hiltUnits: 7,
+        bladeWidthUnits: 2.6,
+        weightClass: "Light (Fast Slash)",
+        palette: {
+          steel: "#95a0a6",
+          steelDark: "#6c767c",
+          steelEdge: "#bfc9ce",
+          guard: "#5a4d41",
+          grip: "#6e472b",
+          gripWrap: "#3e2723",
+          rust: "#9c4a2d"
+        },
+        features: [
+          "17u straight double-edged iron blade with chipped edge notches",
+          "Simple bent iron bar crossguard",
+          "Criss-cross rawhide wrapped wooden grip (5u) + flat disc pommel (2u)",
+          "Weathered rust spots along fuller groove"
+        ]
+      },
+
+      SWD_MILITIA_BROAD: {
+        id: "SWD_MILITIA_BROAD",
+        name: "Militia Iron Broadsword",
+        wielders: "Low-Rank Town Guards, Conscripted Footmen, Garrison Patrols",
+        rarity: "Common Tier 1",
+        totalUnits: 30,
+        bladeUnits: 22,
+        hiltUnits: 8,
+        bladeWidthUnits: 3.1,
+        weightClass: "Medium (Balanced)",
+        palette: {
+          steel: "#a3adb3",
+          steelDark: "#758087",
+          steelEdge: "#d0d8dc",
+          guard: "#8c6d3b",
+          grip: "#4e342e",
+          gripWrap: "#2b1b17",
+          rust: "#8f462c"
+        },
+        features: [
+          "22u standard-issue broad double-edged blade with deep central fuller",
+          "Sturdy rectangular dull-brass crossguard block",
+          "Ribbed cord-wrapped soldier grip (5.5u) + heavy spherical iron pommel (2.5u)",
+          "Reliable, utilitarian mass-forged infantry weapon"
+        ]
+      },
+
+      SWD_RAIDER_FALCHION: {
+        id: "SWD_RAIDER_FALCHION",
+        name: "Jagged Raider Falchion",
+        wielders: "Brigand Brutes, Camp Enforcers, Heavy Poachers",
+        rarity: "Common Tier 1 (Heavy)",
+        totalUnits: 28,
+        bladeUnits: 20,
+        hiltUnits: 8,
+        bladeWidthUnits: 4.2,
+        weightClass: "Heavy Cleaver",
+        palette: {
+          steel: "#7f888d",
+          steelDark: "#535b60",
+          steelEdge: "#b8c2c7",
+          guard: "#473c35",
+          grip: "#784212",
+          gripWrap: "#3b220c",
+          rust: "#964024"
+        },
+        features: [
+          "20u heavy single-edged cleaver blade flaring wide near the clipped tip",
+          "Cruel saw-backed spine notches and forward weight balance",
+          "Iron D-ring knuckle guard protecting the fingers",
+          "Hooked skull-crusher pommel cap"
+        ]
+      },
+
+      SWD_MERC_SABRE: {
+        id: "SWD_MERC_SABRE",
+        name: "Mercenary Curved Scimitar",
+        wielders: "Hired Outriders, Caravan Raiders, Border Skirmishers",
+        rarity: "Common Tier 1",
+        totalUnits: 31,
+        bladeUnits: 23,
+        hiltUnits: 8,
+        bladeWidthUnits: 3.0,
+        weightClass: "Medium-Fast (Slicing)",
+        palette: {
+          steel: "#9ea9b0",
+          steelDark: "#6e7980",
+          steelEdge: "#ced7dc",
+          guard: "#9c7a44",
+          grip: "#633928",
+          gripWrap: "#d5c7b2",
+          rust: "#94472b"
+        },
+        features: [
+          "23u sweeping curved single-edged cavalry/skirmisher blade",
+          "S-curved weathered brass quillon guard",
+          "Slightly canted ergonomic hardwood grip with cloth wrap",
+          "Angled brass capstan pommel"
+        ]
+      },
+
+      SWD_IRON_ARMING: {
+        id: "SWD_IRON_ARMING",
+        name: "Weathered Soldier Arming Sword",
+        wielders: "Veteran Men-at-Arms, Watch Sergeants, Mercenary Guards",
+        rarity: "Common Tier 2",
+        totalUnits: 33,
+        bladeUnits: 25,
+        hiltUnits: 8,
+        bladeWidthUnits: 2.9,
+        weightClass: "Medium-Long (Reach)",
+        palette: {
+          steel: "#aeb8bf",
+          steelDark: "#7b868e",
+          steelEdge: "#dce4e9",
+          guard: "#595e60",
+          grip: "#6e2c26",
+          gripWrap: "#2c1614",
+          rust: "#8c432b"
+        },
+        features: [
+          "25u classic knightly soldier blade with diamond cross-section ridge",
+          "Flared bow-tie iron crossguard (9u wide)",
+          "Oxblood leather-bound grip with wire binding",
+          "Classic chamfered wheel pommel with recessed rivet"
+        ]
+      },
+
+      SWD_SCRAP_BLADE: {
+        id: "SWD_SCRAP_BLADE",
+        name: "Scavenger Crude Scrap-Blade",
+        wielders: "Desperate Outlaws, Ambushers, Ruin Scavengers",
+        rarity: "Common Tier 0 (Makeshift)",
+        totalUnits: 22,
+        bladeUnits: 15,
+        hiltUnits: 7,
+        bladeWidthUnits: 3.3,
+        weightClass: "Light-Crude",
+        palette: {
+          steel: "#7a7672",
+          steelDark: "#524e4b",
+          steelEdge: "#a6a29e",
+          guard: "#4a3b2c",
+          grip: "#8d6e63",
+          gripWrap: "#d5c7b2",
+          rust: "#8f3d22"
+        },
+        features: [
+          "15u asymmetrical salvaged iron plate blade with jagged fractures",
+          "Lashed twin-nail crossbar bound with hemp twine",
+          "Rough unpeeled branch handle with cloth strips",
+          "Heavy hex-nut / iron bolt counter-weight pommel"
+        ]
+      }
+    });
+
+    /**
+     * =========================================================================
+     * 2. REUSABLE SVG WEAPON BUILDER (`renderCommonSword`)
+     * =========================================================================
+     * @param {string} swordId - One of COMMON_SWORDS_REGISTRY keys
+     * @param {string} view - "flat" (0°), "threeQuarter" (45°), or "edge" (90°)
+     * @param {object} opts - { showWear: true, showPivot: true }
+     *
+     * Origin (0,0) is ALWAYS the center of the grip where the character's hand clamps.
+     * Guard sits at y = -10px (-3u).
+     * Pommel sits at y = +13px (+3.8u).
+     * Blade extends from y = -12px up to y = -(12 + bladeUnits * 3.4).
+     */
+    function renderCommonSword(swordId, view = "flat", opts = { showWear: true, showPivot: true }) {
+      const S = COMMON_SWORDS_REGISTRY[swordId] || COMMON_SWORDS_REGISTRY.SWD_BANDIT_SHORT;
+      const P = S.palette;
+      const isFlat = view === "flat";
+      const is3Q = view === "threeQuarter";
+      const isEdge = view === "edge";
+
+      const widthScale = isFlat ? 1.0 : (is3Q ? 0.68 : 0.24);
+      const depthShift = is3Q ? 3.2 : 0;
+
+      const bladeLenPx = S.bladeUnits * UNIT_PX;
+      const halfW = ((S.bladeWidthUnits * UNIT_PX) / 2) * widthScale;
+      const guardY = -10.5;
+      const tipY = guardY - bladeLenPx;
+      const pommelY = 12.5;
+
+      let bladeMarkup = "";
+      let guardMarkup = "";
+      let gripMarkup = "";
+      let pommelMarkup = "";
+      let wearMarkup = "";
+
+      // 1. GRIP / HANDLE (Centered at 0,0, spanning y = -9 to y = +10)
+      const gripHalfW = (isEdge ? 3.4 : (is3Q ? 4.4 : 4.8));
+      gripMarkup = `
+        <path d="M ${-gripHalfW} ${guardY + 1.5}
+                 C ${-gripHalfW - 1} -2, ${-gripHalfW - 1} 4, ${-gripHalfW} ${pommelY - 2}
+                 L ${gripHalfW} ${pommelY - 2}
+                 C ${gripHalfW + 1} 4, ${gripHalfW + 1} -2, ${gripHalfW} ${guardY + 1.5} Z"
+              fill="${P.grip}" stroke="#1b1714" stroke-width="2" stroke-linejoin="round" />
+        <!-- Grip Cord / Leather Wraps -->
+        <path d="M ${-gripHalfW} -5 L ${gripHalfW} -3
+                 M ${-gripHalfW} 0 L ${gripHalfW} 2
+                 M ${-gripHalfW} 5 L ${gripHalfW} 7
+                 ${swordId === 'SWD_BANDIT_SHORT' || swordId === 'SWD_SCRAP_BLADE' ? `M ${gripHalfW} -5 L ${-gripHalfW} -1 M ${gripHalfW} 1 L ${-gripHalfW} 6` : ''}"
+              stroke="${P.gripWrap}" stroke-width="1.6" stroke-linecap="round" />
+      `;
+
+      // 2. SPECIFIC BLADE, GUARD & POMMEL GEOMETRY BY SWORD TYPE
+      if (swordId === "SWD_BANDIT_SHORT") {
+        const gW = isEdge ? 5.5 : (is3Q ? 15 : 20);
+        bladeMarkup = `
+          <!-- Straight Double-Edged Shortsword Blade -->
+          <path d="M ${-halfW} ${guardY}
+                   L ${-halfW * 0.88} ${tipY + 16}
+                   L 0 ${tipY}
+                   L ${halfW * 0.88} ${tipY + 16}
+                   L ${halfW} ${guardY} Z"
+                fill="${P.steel}" stroke="#1b1714" stroke-width="2.2" stroke-linejoin="round" />
+          <!-- Right Bevel Shadow -->
+          <path d="M 0 ${tipY} L ${halfW * 0.88} ${tipY + 16} L ${halfW} ${guardY} L 0 ${guardY} Z"
+                fill="${P.steelDark}" opacity="0.45" />
+          <!-- Shallow Fuller -->
+          ${!isEdge ? `<line x1="0" y1="${guardY - 6}" x2="0" y2="${tipY + 24}" stroke="#1b1714" stroke-width="1.4" stroke-linecap="round" opacity="0.65" />` : ''}
+        `;
+        guardMarkup = `
+          <path d="M ${-gW} ${guardY + 1} Q 0 ${guardY - 3}, ${gW} ${guardY + 1} L ${gW - 1} ${guardY + 6} Q 0 ${guardY + 2}, ${-gW + 1} ${guardY + 6} Z"
+                fill="${P.guard}" stroke="#1b1714" stroke-width="2.1" stroke-linejoin="round" />
+        `;
+        pommelMarkup = `
+          <ellipse cx="0" cy="${pommelY + 2}" rx="${isEdge ? 4.5 : 7.5}" ry="5.5" fill="${P.guard}" stroke="#1b1714" stroke-width="2.1" />
+          <circle cx="0" cy="${pommelY + 2}" r="1.8" fill="#1b1714" />
+        `;
+        wearMarkup = `
+          <!-- Rust patches & edge notches -->
+          <ellipse cx="${-halfW * 0.35}" cy="${guardY - 22}" rx="${halfW * 0.4}" ry="4.5" fill="${P.rust}" opacity="0.55" />
+          <ellipse cx="${halfW * 0.3}" cy="${tipY + 26}" rx="${halfW * 0.35}" ry="3.2" fill="${P.rust}" opacity="0.5" />
+          ${!isEdge ? `<path d="M ${-halfW * 0.92} ${guardY - 36} L ${-halfW * 0.55} ${guardY - 34} L ${-halfW * 0.92} ${guardY - 31}" fill="#f4ebd9" stroke="#1b1714" stroke-width="1.5" stroke-linejoin="round" />` : ''}
+        `;
+
+      } else if (swordId === "SWD_MILITIA_BROAD") {
+        const gW = isEdge ? 6.5 : (is3Q ? 18 : 24);
+        bladeMarkup = `
+          <path d="M ${-halfW} ${guardY}
+                   L ${-halfW * 0.92} ${tipY + 20}
+                   L 0 ${tipY}
+                   L ${halfW * 0.92} ${tipY + 20}
+                   L ${halfW} ${guardY} Z"
+                fill="${P.steel}" stroke="#1b1714" stroke-width="2.2" stroke-linejoin="round" />
+          <path d="M 0 ${tipY} L ${halfW * 0.92} ${tipY + 20} L ${halfW} ${guardY} L 0 ${guardY} Z"
+                fill="${P.steelDark}" opacity="0.4" />
+          ${!isEdge ? `
+            <rect x="${-halfW * 0.28}" y="${tipY + 24}" width="${halfW * 0.56}" height="${bladeLenPx - 30}" rx="2"
+                  fill="${P.steelDark}" stroke="#1b1714" stroke-width="1.2" opacity="0.75" />
+          ` : ''}
+        `;
+        guardMarkup = `
+          <rect x="${-gW}" y="${guardY - 1}" width="${gW * 2}" height="7" rx="2"
+                fill="${P.guard}" stroke="#1b1714" stroke-width="2.2" />
+          <line x1="${-gW + 4}" y1="${guardY + 2.5}" x2="${gW - 4}" y2="${guardY + 2.5}" stroke="#1b1714" stroke-width="1.1" opacity="0.5" />
+        `;
+        pommelMarkup = `
+          <circle cx="0" cy="${pommelY + 3.5}" r="${isEdge ? 5.8 : 7.5}" fill="${P.guard}" stroke="#1b1714" stroke-width="2.1" />
+          <circle cx="0" cy="${pommelY + 3.5}" r="2.2" fill="#d4ac0d" stroke="#1b1714" stroke-width="1.2" />
+        `;
+        wearMarkup = `
+          <path d="M ${-halfW * 0.5} ${guardY - 18} L ${halfW * 0.4} ${guardY - 24} M ${-halfW * 0.3} ${tipY + 32} L ${halfW * 0.5} ${tipY + 28}"
+                stroke="#1b1714" stroke-width="1.1" opacity="0.45" stroke-linecap="round" />
+          <ellipse cx="${halfW * 0.4}" cy="${guardY - 45}" rx="${halfW * 0.3}" ry="4" fill="${P.rust}" opacity="0.4" />
+        `;
+
+      } else if (swordId === "SWD_RAIDER_FALCHION") {
+        // Heavy Single-Edged Cleaver / Falchion (Spine on Left -X, Cutting Edge flares out on Right +X)
+        const spineX = isEdge ? -2.2 : -halfW * 0.7;
+        const bellyPeakX = isEdge ? 2.5 : halfW * 1.38;
+        const baseEdgeX = isEdge ? 2.2 : halfW * 0.85;
+        const gW = isEdge ? 6 : (is3Q ? 16 : 21);
+
+        bladeMarkup = `
+          <path d="M ${spineX} ${guardY}
+                   L ${spineX * 0.95} ${tipY + 22}
+                   L ${bellyPeakX * 0.45} ${tipY}
+                   C ${bellyPeakX * 1.15} ${tipY + 14}, ${bellyPeakX} ${tipY + 38}, ${baseEdgeX} ${guardY} Z"
+                fill="${P.steel}" stroke="#1b1714" stroke-width="2.3" stroke-linejoin="round" />
+          <!-- Heavy Spine Darkening -->
+          <path d="M ${spineX} ${guardY} L ${spineX * 0.95} ${tipY + 22} L ${spineX * 0.2} ${tipY + 16} L ${spineX * 0.2} ${guardY} Z"
+                fill="${P.steelDark}" opacity="0.6" />
+          <!-- Fullering Blood Groove -->
+          ${!isEdge ? `<line x1="${spineX * 0.35}" y1="${guardY - 8}" x2="${spineX * 0.35}" y2="${tipY + 24}" stroke="#1b1714" stroke-width="1.8" stroke-linecap="round" />` : ''}
+        `;
+        guardMarkup = `
+          <!-- Knuckle-Bow D-Guard on Right (+X cutting side) -->
+          ${!isEdge ? `
+            <path d="M ${gW * 0.75} ${guardY + 3} C ${gW * 1.15} ${guardY + 10}, ${gW * 1.05} ${pommelY - 1}, ${gripHalfW} ${pommelY}"
+                  fill="none" stroke="${P.guard}" stroke-width="3.2" stroke-linecap="round" />
+            <path d="M ${gW * 0.75} ${guardY + 3} C ${gW * 1.15} ${guardY + 10}, ${gW * 1.05} ${pommelY - 1}, ${gripHalfW} ${pommelY}"
+                  fill="none" stroke="#1b1714" stroke-width="1.3" stroke-linecap="round" />
+          ` : ''}
+          <path d="M ${-gW * 0.75} ${guardY} L ${gW} ${guardY} L ${gW - 2} ${guardY + 6} L ${-gW * 0.75} ${guardY + 6} Z"
+                fill="${P.guard}" stroke="#1b1714" stroke-width="2.1" stroke-linejoin="round" />
+        `;
+        pommelMarkup = `
+          <path d="M -7 ${pommelY - 1} L 8 ${pommelY - 1} L 11 ${pommelY + 7} L -6 ${pommelY + 5} Z"
+                fill="${P.guard}" stroke="#1b1714" stroke-width="2.1" stroke-linejoin="round" />
+        `;
+        wearMarkup = `
+          <ellipse cx="${bellyPeakX * 0.35}" cy="${tipY + 26}" rx="${halfW * 0.45}" ry="5.5" fill="${P.rust}" opacity="0.55" />
+          ${!isEdge ? `<path d="M ${bellyPeakX * 0.85} ${tipY + 28} L ${bellyPeakX * 0.52} ${tipY + 30} L ${bellyPeakX * 0.82} ${tipY + 34}" fill="#f4ebd9" stroke="#1b1714" stroke-width="1.6" />` : ''}
+        `;
+
+      } else if (swordId === "SWD_MERC_SABRE") {
+        // Curved Scimitar / Sabre (Curves back toward -X at the tip, cutting edge along +X outer curve)
+        const curveOffset = isEdge ? 0 : (is3Q ? -9 : -13);
+        const gW = isEdge ? 6 : (is3Q ? 17 : 22);
+
+        bladeMarkup = `
+          <path d="M ${-halfW * 0.8} ${guardY}
+                   Q ${-halfW * 0.9} ${guardY - bladeLenPx * 0.55}, ${curveOffset} ${tipY}
+                   Q ${halfW * 1.35 + curveOffset * 0.3} ${guardY - bladeLenPx * 0.5}, ${halfW * 0.9} ${guardY} Z"
+                fill="${P.steel}" stroke="#1b1714" stroke-width="2.2" stroke-linejoin="round" />
+          <path d="M ${-halfW * 0.8} ${guardY}
+                   Q ${-halfW * 0.9} ${guardY - bladeLenPx * 0.55}, ${curveOffset} ${tipY}
+                   Q ${curveOffset * 0.4} ${guardY - bladeLenPx * 0.5}, 0 ${guardY} Z"
+                fill="${P.steelDark}" opacity="0.45" />
+        `;
+        guardMarkup = `
+          <!-- S-Curved Brass Quillon Guard -->
+          <path d="M ${-gW} ${guardY - 3}
+                   C ${-gW * 0.5} ${guardY + 3}, ${gW * 0.5} ${guardY - 1}, ${gW} ${guardY + 5}
+                   L ${gW - 2} ${guardY + 9}
+                   C ${gW * 0.4} ${guardY + 4}, ${-gW * 0.4} ${guardY + 7}, ${-gW + 2} ${guardY + 2} Z"
+                fill="${P.guard}" stroke="#1b1714" stroke-width="2.1" stroke-linejoin="round" />
+        `;
+        pommelMarkup = `
+          <path d="M -6 ${pommelY - 1} L 6 ${pommelY - 1} L 4 ${pommelY + 7} L -8 ${pommelY + 6} Z"
+                fill="${P.guard}" stroke="#1b1714" stroke-width="2.1" stroke-linejoin="round" />
+        `;
+        wearMarkup = `
+          <ellipse cx="2" cy="${guardY - 38}" rx="${halfW * 0.32}" ry="5" fill="${P.rust}" opacity="0.42" />
+        `;
+
+      } else if (swordId === "SWD_IRON_ARMING") {
+        // Classic Cruciform Soldier Arming Sword (Long tapered diamond-section blade)
+        const gW = isEdge ? 6.5 : (is3Q ? 22 : 29);
+        bladeMarkup = `
+          <path d="M ${-halfW} ${guardY}
+                   L ${-halfW * 0.72} ${tipY + 22}
+                   L 0 ${tipY}
+                   L ${halfW * 0.72} ${tipY + 22}
+                   L ${halfW} ${guardY} Z"
+                fill="${P.steel}" stroke="#1b1714" stroke-width="2.2" stroke-linejoin="round" />
+          <!-- Diamond Cross-Section Central Ridge -->
+          <path d="M 0 ${tipY} L ${halfW * 0.72} ${tipY + 22} L ${halfW} ${guardY} L 0 ${guardY} Z"
+                fill="${P.steelDark}" opacity="0.48" />
+          <line x1="0" y1="${guardY}" x2="0" y2="${tipY + 2}" stroke="#1b1714" stroke-width="1.5" />
+        `;
+        guardMarkup = `
+          <!-- Flared Bow-Tie Cruciform Guard -->
+          <path d="M ${-gW} ${guardY - 2}
+                   L ${-6} ${guardY + 1} L ${6} ${guardY + 1} L ${gW} ${guardY - 2}
+                   L ${gW} ${guardY + 7}
+                   L ${6} ${guardY + 5} L ${-6} ${guardY + 5} L ${-gW} ${guardY + 7} Z"
+                fill="${P.guard}" stroke="#1b1714" stroke-width="2.2" stroke-linejoin="round" />
+        `;
+        pommelMarkup = `
+          <circle cx="0" cy="${pommelY + 4}" r="${isEdge ? 5.8 : 8.2}" fill="${P.guard}" stroke="#1b1714" stroke-width="2.2" />
+          <circle cx="0" cy="${pommelY + 4}" r="${isEdge ? 2.5 : 4.2}" fill="${P.steel}" stroke="#1b1714" stroke-width="1.5" />
+        `;
+        wearMarkup = `
+          <path d="M ${-halfW * 0.6} ${guardY - 28} L ${halfW * 0.5} ${guardY - 33} M ${-halfW * 0.4} ${guardY - 56} L ${halfW * 0.4} ${guardY - 52}"
+                stroke="#1b1714" stroke-width="1.1" opacity="0.45" />
+        `;
+
+      } else if (swordId === "SWD_SCRAP_BLADE") {
+        // Scavenger Crude Scrap-Blade (Jagged, asymmetrical salvaged iron)
+        const gW = isEdge ? 5.5 : (is3Q ? 14 : 18);
+        bladeMarkup = `
+          <path d="M ${-halfW * 0.85} ${guardY}
+                   L ${-halfW * 1.05} ${guardY - bladeLenPx * 0.45}
+                   L ${-halfW * 0.65} ${guardY - bladeLenPx * 0.48}
+                   L ${-halfW * 0.9} ${tipY + 14}
+                   L ${halfW * 0.25} ${tipY}
+                   L ${halfW * 1.05} ${tipY + 22}
+                   L ${halfW * 0.85} ${guardY} Z"
+                fill="${P.steel}" stroke="#1b1714" stroke-width="2.3" stroke-linejoin="round" />
+          <path d="M ${halfW * 0.25} ${tipY} L ${halfW * 1.05} ${tipY + 22} L ${halfW * 0.85} ${guardY} L 0 ${guardY} Z"
+                fill="${P.steelDark}" opacity="0.52" />
+          <!-- Rivet Holes in Scrap Metal -->
+          ${!isEdge ? `
+            <circle cx="-2" cy="${guardY - 14}" r="1.8" fill="#2b231d" />
+            <circle cx="1.5" cy="${guardY - 34}" r="1.6" fill="#2b231d" />
+          ` : ''}
+        `;
+        guardMarkup = `
+          <!-- Twin Iron Spikes Lashed with Hemp Twine -->
+          <rect x="${-gW}" y="${guardY}" width="${gW * 2}" height="5.5" rx="1.5" transform="rotate(-4 0 ${guardY})"
+                fill="${P.guard}" stroke="#1b1714" stroke-width="2.1" />
+          <path d="M -6 ${guardY - 2} L 6 ${guardY + 7} M 6 ${guardY - 2} L -6 ${guardY + 7}"
+                stroke="${P.gripWrap}" stroke-width="2.2" stroke-linecap="round" />
+        `;
+        pommelMarkup = `
+          <!-- Heavy Salvaged Hex Bolt Counter-Weight -->
+          <polygon points="-7,${pommelY} 7,${pommelY} 9,${pommelY + 5} 5,${pommelY + 9} -5,${pommelY + 9} -9,${pommelY + 5}"
+                   fill="${P.steelDark}" stroke="#1b1714" stroke-width="2.1" stroke-linejoin="round" />
+        `;
+        wearMarkup = `
+          <ellipse cx="-2" cy="${guardY - 22}" rx="${halfW * 0.55}" ry="6" fill="${P.rust}" opacity="0.65" />
+          <ellipse cx="3" cy="${tipY + 18}" rx="${halfW * 0.45}" ry="4.5" fill="${P.rust}" opacity="0.6" />
+        `;
+      }
+
+      // 3/4 Extrusion Depth Rim
+      const bevelExtrusion = is3Q ? `
+        <path d="M ${-halfW - depthShift} ${guardY} L ${-depthShift} ${tipY} L 0 ${tipY} L ${-halfW} ${guardY} Z"
+              fill="${P.steelDark}" stroke="#1b1714" stroke-width="1.6" stroke-linejoin="round" />
+      ` : '';
+
+      // Locked (0,0) Hand-Grip Pivot Crosshair Overlay
+      const pivotOverlay = opts.showPivot ? `
+        <g class="grip-pivot-marker" pointer-events="none">
+          <circle cx="0" cy="0" r="6.5" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="2 2" />
+          <circle cx="0" cy="0" r="2.5" fill="#c0392b" stroke="#ffffff" stroke-width="1" />
+          <line x1="-11" y1="0" x2="11" y2="0" stroke="#c0392b" stroke-width="1.2" />
+          <line x1="0" y1="-11" x2="0" y2="11" stroke="#c0392b" stroke-width="1.2" />
+        </g>
+      ` : '';
+
+      return `
+        <g class="weapon-prop-rig" data-sword-id="${swordId}" data-view="${view}">
+          ${bevelExtrusion}
+          <g class="weapon-blade">
+            ${bladeMarkup}
+            <path d="M ${-halfW * 0.5} ${guardY - 12} L ${-halfW * 0.25} ${tipY + 18}"
+                  stroke="${P.steelEdge}" stroke-width="1.4" stroke-linecap="round" opacity="0.7" class="blade-glint" />
+            <g class="weapon-wear-layer" style="display: ${opts.showWear ? 'block' : 'none'}">
+              ${wearMarkup}
+            </g>
+          </g>
+          <g class="weapon-grip">${gripMarkup}</g>
+          <g class="weapon-guard">${guardMarkup}</g>
+          <g class="weapon-pommel">${pommelMarkup}</g>
+          ${pivotOverlay}
+        </g>
+      `;
+    }
+
+    /**
+     * =========================================================================
+     * 3. RENDER RULER GRIDS & MASTER LINEUP SHEET
+     * =========================================================================
+     */
+    const appState = {
+      selectedSword: "SWD_BANDIT_SHORT",
+      combatAction: "idle",
+      wristOffset: 0,
+      showGrid: true,
+      showPivot: true,
+      showWear: true,
+      frameCount: 0,
+      fpsLastCheck: performance.now()
+    };
+
+    function renderLineupGrid() {
+      const svg = document.getElementById('swordLineupSvg');
+      const gridLayer = svg.querySelector('.weapon-grid-layer');
+      const slotsLayer = document.getElementById('lineupSlotsLayer');
+      const gripDatumY = 315; // 0u Hand Grip Datum Line
+
+      let gridHtml = `
+        <!-- 0u Hand Grip Datum Line -->
+        <line x1="55" y1="${gripDatumY}" x2="1245" y2="${gripDatumY}" stroke="#c0392b" stroke-width="1.8" stroke-dasharray="6 3" />
+        <text x="50" y="${gripDatumY + 3}" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="700" fill="#c0392b" text-anchor="end">0u GRIP</text>
+      `;
+
+      for (let u = -8; u <= 30; u += 4) {
+        const y = gripDatumY - u * UNIT_PX;
+        if (u === 0) continue;
+        const isMajor = u % 8 === 0;
+        gridHtml += `
+          <line x1="60" y1="${y}" x2="1240" y2="${y}" stroke="#8c7355" stroke-width="${isMajor ? '0.85' : '0.45'}" stroke-dasharray="${isMajor ? 'none' : '2 4'}" opacity="${isMajor ? '0.45' : '0.25'}" />
+          <text x="50" y="${y + 3}" font-family="JetBrains Mono, monospace" font-size="8.5" fill="#4a3b2c" text-anchor="end">${u > 0 ? '+' + u : u}u</text>
+        `;
+      }
+      gridLayer.innerHTML = gridHtml;
+
+      // Render all 6 Swords in the Master Lineup
+      const keys = Object.keys(COMMON_SWORDS_REGISTRY);
+      let slotsHtml = "";
+      keys.forEach((key, idx) => {
+        const S = COMMON_SWORDS_REGISTRY[key];
+        const cx = 145 + idx * 195;
+        const isSelected = key === appState.selectedSword;
+
+        slotsHtml += `
+          <g class="lineup-sword-slot cursor-pointer" data-sword-id="${key}" transform="translate(${cx}, ${gripDatumY})">
+            <rect x="-82" y="-285" width="164" height="365" rx="8"
+                  fill="${isSelected ? '#c0392b' : '#2b231d'}"
+                  fill-opacity="${isSelected ? '0.09' : '0.02'}"
+                  stroke="${isSelected ? '#c0392b' : '#8c7355'}"
+                  stroke-width="${isSelected ? '2.2' : '1'}" />
+            <g filter="url(#ink-sketch)" transform="scale(1.85)">
+              ${renderCommonSword(key, "flat", { showWear: appState.showWear, showPivot: appState.showPivot })}
+            </g>
+            <!-- Label Plaque -->
+            <rect x="-76" y="42" width="152" height="32" rx="4" fill="${isSelected ? '#2b231d' : '#e5d7b8'}" stroke="#2b231d" stroke-width="1.3" />
+            <text x="0" y="56" font-family="Cinzel, serif" font-weight="700" font-size="10" fill="${isSelected ? '#f4ecd8' : '#1b1714'}" text-anchor="middle">
+              ${idx + 1}. ${S.name.replace('Rusty ', '').replace('Weathered ', '').replace('Scavenger ', '')}
+            </text>
+            <text x="0" y="69" font-family="JetBrains Mono, monospace" font-size="8.5" fill="${isSelected ? '#e5d7b8' : '#4a3b2c'}" text-anchor="middle">
+              Total: ${S.totalUnits}u (Blade ${S.bladeUnits}u)
+            </text>
+          </g>
+        `;
+      });
+
+      slotsLayer.innerHTML = slotsHtml;
+
+      // Bind Click on Lineup Slots
+      document.querySelectorAll('.lineup-sword-slot').forEach(slot => {
+        slot.addEventListener('click', () => {
+          const id = slot.getAttribute('data-sword-id');
+          appState.selectedSword = id;
+          document.getElementById('swordSelect').value = id;
+          mountAllViews();
+        });
+      });
+    }
+
+    function renderBlueprintSheet() {
+      const S = COMMON_SWORDS_REGISTRY[appState.selectedSword];
+      document.getElementById('blueprintCodeBadge').textContent = `${S.id} • ${S.rarity}`;
+      document.getElementById('blueprintTitle').textContent = `${S.name} — 3-Angle Orthographic Sheet (${S.totalUnits}u)`;
+
+      // Swatches
+      const swatchesEl = document.getElementById('blueprintPaletteSwatches');
+      swatchesEl.innerHTML = Object.entries(S.palette).slice(0, 4).map(([k, hex]) => `
+        <span class="flex items-center gap-1 text-[11px] font-mono-code bg-white/80 px-2 py-0.5 rounded border border-[#8c7355]">
+          <i class="w-2.5 h-2.5 rounded-sm inline-block border border-black" style="background:${hex}"></i>${hex}
+        </span>
+      `).join('');
+
+      // Blueprint Grid
+      const bpSvg = document.getElementById('swordBlueprintSvg');
+      const bpGrid = bpSvg.querySelector('.weapon-grid-layer');
+      const gripY = 275;
+      let gHtml = `
+        <line x1="35" y1="${gripY}" x2="695" y2="${gripY}" stroke="#c0392b" stroke-width="1.4" stroke-dasharray="5 3" />
+        <text x="30" y="${gripY + 3}" font-family="JetBrains Mono, monospace" font-size="8.5" font-weight="700" fill="#c0392b" text-anchor="end">0u</text>
+      `;
+      for (let u = -6; u <= 26; u += 4) {
+        if (u === 0) continue;
+        const y = gripY - u * (UNIT_PX * 1.9);
+        if (y < 18 || y > 340) continue;
+        gHtml += `
+          <line x1="40" y1="${y}" x2="690" y2="${y}" stroke="#8c7355" stroke-width="0.5" stroke-dasharray="2 3" opacity="0.35" />
+          <text x="30" y="${y + 3}" font-family="JetBrains Mono, monospace" font-size="8" fill="#4a3b2c" text-anchor="end">${u > 0 ? '+' + u : u}u</text>
+        `;
+      }
+      bpGrid.innerHTML = gHtml;
+
+      // Mount 3 Orthographic Views at 1.9x Inspection Scale
+      const scale = 1.9;
+      document.getElementById('bp-slot-flat').setAttribute('transform', `translate(135, ${gripY}) scale(${scale})`);
+      document.getElementById('bp-slot-threeQuarter').setAttribute('transform', `translate(360, ${gripY}) scale(${scale})`);
+      document.getElementById('bp-slot-edge').setAttribute('transform', `translate(575, ${gripY}) scale(${scale})`);
+
+      document.getElementById('bp-slot-flat').innerHTML = `<g filter="url(#ink-sketch)">${renderCommonSword(S.id, "flat", { showWear: appState.showWear, showPivot: appState.showPivot })}</g>`;
+      document.getElementById('bp-slot-threeQuarter').innerHTML = `<g filter="url(#ink-sketch)">${renderCommonSword(S.id, "threeQuarter", { showWear: appState.showWear, showPivot: appState.showPivot })}</g>`;
+      document.getElementById('bp-slot-edge').innerHTML = `<g filter="url(#ink-sketch)">${renderCommonSword(S.id, "edge", { showWear: appState.showWear, showPivot: appState.showPivot })}</g>`;
+
+      // Mount active sword into the Live Combat Hand Tester (at 1.45x scale for clear inspection)
+      const testerMount = document.getElementById('testerWeaponMount');
+      testerMount.innerHTML = `<g transform="scale(1.45)">${renderCommonSword(S.id, "flat", { showWear: appState.showWear, showPivot: appState.showPivot })}</g>`;
+
+      // Update Specs Bar
+      document.getElementById('activeWeaponSpecsBar').innerHTML = `
+        <div class="bg-[#e5d7b8]/70 p-2 rounded border border-[#8c7355]">
+          <div class="text-[10px] text-[#4a3b2c] uppercase">Total Length</div>
+          <div class="font-bold text-sm text-[#1b1714]">${S.totalUnits}u (${Math.round(S.totalUnits * UNIT_PX)}px)</div>
+        </div>
+        <div class="bg-[#e5d7b8]/70 p-2 rounded border border-[#8c7355]">
+          <div class="text-[10px] text-[#4a3b2c] uppercase">Blade / Hilt Split</div>
+          <div class="font-bold text-sm text-[#1b1714]">${S.bladeUnits}u / ${S.hiltUnits}u</div>
+        </div>
+        <div class="bg-[#e5d7b8]/70 p-2 rounded border border-[#8c7355]">
+          <div class="text-[10px] text-[#4a3b2c] uppercase">Combat Class</div>
+          <div class="font-bold text-sm text-[#7f1d1d]">${S.weightClass}</div>
+        </div>
+      `;
+    }
+
+    function renderWeaponCards() {
+      const grid = document.getElementById('weaponCardsGrid');
+      grid.innerHTML = Object.values(COMMON_SWORDS_REGISTRY).map(S => {
+        const isSelected = S.id === appState.selectedSword;
+        return `
+          <div data-card-sword="${S.id}" class="weapon-spec-card parchment-card rounded-lg p-4 cursor-pointer transition-all ${isSelected ? 'ring-2 ring-[#c0392b] bg-[#f8efe0]' : 'hover:bg-[#f6ecd9]'}">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-mono-code text-[10px] px-2 py-0.5 rounded font-bold ${isSelected ? 'bg-[#c0392b] text-white' : 'bg-[#2b231d] text-[#f4ecd8]'}">${S.id}</span>
+              <span class="font-mono-code text-xs font-bold text-[#4a3b2c]">${S.totalUnits}u Total</span>
+            </div>
+            <h4 class="font-title font-bold text-base text-[#1b1714]">${S.name}</h4>
+            <p class="text-xs text-[#7f1d1d] font-semibold mb-2">Used by: ${S.wielders}</p>
+            <ul class="attr-list text-xs text-[#2b231d] list-none space-y-1">
+              ${S.features.map(f => `<li>${f}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+      }).join('');
+
+      document.querySelectorAll('.weapon-spec-card').forEach(card => {
+        card.addEventListener('click', () => {
+          appState.selectedSword = card.getAttribute('data-card-sword');
+          document.getElementById('swordSelect').value = appState.selectedSword;
+          mountAllViews();
+        });
+      });
+    }
+
+    function mountAllViews() {
+      renderLineupGrid();
+      renderBlueprintSheet();
+      renderWeaponCards();
+      document.querySelectorAll('.weapon-grid-layer').forEach(el => {
+        el.style.display = appState.showGrid ? 'block' : 'none';
+      });
+    }
+
+    /**
+     * =========================================================================
+     * 4A. PROCEDURAL METAL COMBAT AUDIO ENGINE (Web Audio API)
+     * =========================================================================
+     * Synthesizes sword-on-sword clashes, sword-on-shield impacts, and light
+     * metallic scrapes without external audio files. All sounds are generated
+     * from noise + resonant filters to produce convincing iron/steel hits.
+     */
+    const MetalAudio = {
+      ctx: null,
+      master: null,
+      muted: false,
+      lastStrikeAt: 0,
+      lastAction: null,
+      phaseLatch: {},
+
+      ensure() {
+        if (this.ctx) return true;
+        try {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return false;
+          this.ctx = new AC();
+          this.master = this.ctx.createGain();
+          this.master.gain.value = 0.55;
+          this.master.connect(this.ctx.destination);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      },
+
+      resume() {
+        if (this.ensure() && this.ctx.state === "suspended") {
+          this.ctx.resume().catch(() => {});
+        }
+      },
+
+      /* Burst of filtered noise — the body of a metal impact */
+      _noiseBurst(duration, filterFreq, filterQ, gainVal, when) {
+        const ctx = this.ctx;
+        const len = Math.max(1, Math.floor(ctx.sampleRate * duration));
+        const buffer = ctx.createBuffer(1, len, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < len; i++) {
+          // Slightly pink-ish noise (energy falls with frequency)
+          data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 0.35);
+        }
+        const src = ctx.createBufferSource();
+        src.buffer = buffer;
+        const filter = ctx.createBiquadFilter();
+        filter.type = "bandpass";
+        filter.frequency.value = filterFreq;
+        filter.Q.value = filterQ;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(gainVal, when);
+        g.gain.exponentialRampToValueAtTime(0.001, when + duration);
+        src.connect(filter);
+        filter.connect(g);
+        g.connect(this.master);
+        src.start(when);
+        src.stop(when + duration + 0.02);
+      },
+
+      /* Short resonant sine/triangle "ring" for blade overtones */
+      _ring(freq, duration, type, gainVal, when, detune = 0) {
+        const ctx = this.ctx;
+        const osc = ctx.createOscillator();
+        osc.type = type || "triangle";
+        osc.frequency.value = freq;
+        if (detune) osc.detune.value = detune;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(gainVal, when);
+        g.gain.exponentialRampToValueAtTime(0.001, when + duration);
+        osc.connect(g);
+        g.connect(this.master);
+        osc.start(when);
+        osc.stop(when + duration + 0.02);
+      },
+
+      /**
+       * Sword-on-sword clash — bright, layered metallic hit with ringing decay.
+       * Used for Heavy Slash peak and mutual blade contact.
+       */
+      playSwordClash(intensity = 1) {
+        if (this.muted || !this.ensure()) return;
+        this.resume();
+        const t0 = this.ctx.currentTime;
+        const i = Math.max(0.4, Math.min(1.4, intensity));
+        // Transient noise body
+        this._noiseBurst(0.09 * i, 2800 + 900 * i, 2.2, 0.55 * i, t0);
+        this._noiseBurst(0.06 * i, 5200, 1.4, 0.28 * i, t0 + 0.008);
+        // Metallic partials (inharmonic for steel character)
+        this._ring(780 + Math.random() * 60, 0.22 * i, "triangle", 0.18 * i, t0, -12);
+        this._ring(1450 + Math.random() * 80, 0.28 * i, "sine", 0.12 * i, t0 + 0.004);
+        this._ring(2300 + Math.random() * 120, 0.18 * i, "triangle", 0.08 * i, t0 + 0.01);
+        this._ring(3400, 0.12 * i, "sine", 0.05 * i, t0 + 0.015);
+        // Low body thud of mass behind the blade
+        this._ring(110 + Math.random() * 20, 0.14 * i, "sine", 0.22 * i, t0);
+      },
+
+      /**
+       * Sword-on-shield impact — duller, heavier, more woody/metallic thump
+       * with a short shield rim ring. Used for Parry / block moments.
+       */
+      playShieldHit(intensity = 1) {
+        if (this.muted || !this.ensure()) return;
+        this.resume();
+        const t0 = this.ctx.currentTime;
+        const i = Math.max(0.4, Math.min(1.4, intensity));
+        // Broad low-mid noise (shield face)
+        this._noiseBurst(0.12 * i, 900 + 200 * i, 1.1, 0.6 * i, t0);
+        this._noiseBurst(0.07 * i, 1800, 0.9, 0.25 * i, t0 + 0.01);
+        // Shield rim / boss metallic ring (lower and longer than blade)
+        this._ring(220 + Math.random() * 30, 0.35 * i, "triangle", 0.2 * i, t0);
+        this._ring(480 + Math.random() * 40, 0.25 * i, "sine", 0.12 * i, t0 + 0.008);
+        this._ring(960, 0.16 * i, "triangle", 0.06 * i, t0 + 0.015);
+        // Deep impact
+        this._ring(70 + Math.random() * 12, 0.18 * i, "sine", 0.28 * i, t0);
+      },
+
+      /**
+       * Sharp thrust / tip impact — quick, pointed metallic tick.
+       */
+      playThrustHit(intensity = 1) {
+        if (this.muted || !this.ensure()) return;
+        this.resume();
+        const t0 = this.ctx.currentTime;
+        const i = Math.max(0.4, Math.min(1.3, intensity));
+        this._noiseBurst(0.045 * i, 3800, 3.5, 0.4 * i, t0);
+        this._ring(1900 + Math.random() * 100, 0.12 * i, "sine", 0.14 * i, t0);
+        this._ring(3100, 0.08 * i, "triangle", 0.07 * i, t0 + 0.004);
+        this._ring(140, 0.09 * i, "sine", 0.15 * i, t0);
+      },
+
+      /**
+       * Light scrape / flourish ring — quiet blade edge whisper.
+       */
+      playScrape(intensity = 0.55) {
+        if (this.muted || !this.ensure()) return;
+        this.resume();
+        const t0 = this.ctx.currentTime;
+        const i = Math.max(0.3, Math.min(1, intensity));
+        this._noiseBurst(0.08 * i, 4200, 0.7, 0.12 * i, t0);
+        this._ring(2600 + Math.random() * 200, 0.15 * i, "sine", 0.05 * i, t0);
+      },
+
+      /**
+       * Called every frame from the combat tester. Detects the peak of a
+       * swing / thrust / parry cycle and fires the matching impact sound
+       * once per cycle (phase latch prevents double-triggers).
+       */
+      syncToAction(action, t) {
+        if (action !== this.lastAction) {
+          this.phaseLatch = {};
+          this.lastAction = action;
+        }
+        if (action === "slash") {
+          // Peak of the forward cut when sin(cycle) is rising through ~0.85
+          const cycle = (t * 2.8) % (Math.PI * 2);
+          const s = Math.sin(cycle);
+          const key = Math.floor(t * 2.8 / (Math.PI * 2));
+          if (s > 0.82 && !this.phaseLatch["slash_" + key]) {
+            this.phaseLatch["slash_" + key] = true;
+            // Randomize slightly between pure blade clash and heavier hit
+            if (Math.random() > 0.35) this.playSwordClash(0.85 + Math.random() * 0.35);
+            else this.playShieldHit(0.75 + Math.random() * 0.3);
+          }
+        } else if (action === "thrust") {
+          const lunge = Math.sin(t * 4.2);
+          const key = Math.floor(t * 4.2 / (Math.PI * 2));
+          if (lunge > 0.88 && !this.phaseLatch["thrust_" + key]) {
+            this.phaseLatch["thrust_" + key] = true;
+            this.playThrustHit(0.8 + Math.random() * 0.35);
+          }
+        } else if (action === "parry") {
+          // Occasional shield-block clanks while holding high guard
+          const sway = Math.sin(t * 3.0);
+          const key = Math.floor(t * 1.15);
+          if (sway > 0.92 && !this.phaseLatch["parry_" + key]) {
+            this.phaseLatch["parry_" + key] = true;
+            this.playShieldHit(0.55 + Math.random() * 0.25);
+          }
+        } else if (action === "inspect") {
+          // Soft metallic whisper on extreme wrist angles
+          const w = Math.sin(t * 2.2);
+          const key = Math.floor(t * 2.2 / Math.PI);
+          if (Math.abs(w) > 0.95 && !this.phaseLatch["inspect_" + key]) {
+            this.phaseLatch["inspect_" + key] = true;
+            this.playScrape(0.4 + Math.random() * 0.25);
+          }
+        }
+      }
+    };
+
+    /**
+     * =========================================================================
+     * 4. LIVE HAND-GRIP & COMBAT SWING KINEMATICS ENGINE
+     * =========================================================================
+     */
+    function updateCombatTester(t) {
+      const upperArm = document.getElementById('testerUpperArm');
+      const forearm = document.getElementById('testerForearm');
+      const wristGroup = document.getElementById('testerWristGroup');
+      const shoulderRoot = document.getElementById('testerShoulderRoot');
+      const slashArc = document.getElementById('slashTrailArc');
+
+      let shoulderX = 115, shoulderY = 165;
+      let upperArmDeg = -25;
+      let forearmDeg = -55;
+      let wristDeg = appState.wristOffset;
+      let slashOpacity = 0;
+
+      if (appState.combatAction === "idle") {
+        const breath = Math.sin(t * 2.4);
+        upperArmDeg = -22 + breath * 3;
+        forearmDeg = -58 - breath * 4;
+        wristDeg += Math.sin(t * 1.6) * 2.5;
+      } else if (appState.combatAction === "slash") {
+        // Dynamic wind-up and fast cleaving slash cycle
+        const cycle = (t * 2.8) % (Math.PI * 2);
+        const s = Math.sin(cycle);
+        upperArmDeg = -45 + s * 55;
+        forearmDeg = -40 + s * 38;
+        wristDeg += s * 22;
+        slashOpacity = s > 0.2 ? (s - 0.2) * 0.65 : 0;
+      } else if (appState.combatAction === "thrust") {
+        // Forward lunging stab along the horizontal strike line
+        const lunge = Math.sin(t * 4.2);
+        const forwardPush = Math.max(0, lunge) * 48;
+        shoulderX = 115 + forwardPush;
+        upperArmDeg = -72 + lunge * 12;
+        forearmDeg = -12 - lunge * 10;
+        wristDeg += 8;
+      } else if (appState.combatAction === "parry") {
+        // High defensive guard posture
+        const sway = Math.sin(t * 3.0);
+        upperArmDeg = -85 + sway * 5;
+        forearmDeg = -75 + sway * 6;
+        wristDeg += -35 + sway * 4;
+      } else if (appState.combatAction === "inspect") {
+        // Slow wrist flourish showing 360° handle balance inside grip
+        upperArmDeg = -35;
+        forearmDeg = -50;
+        wristDeg += Math.sin(t * 2.2) * 42;
+      }
+
+      // Drive metal impact SFX from the same phase curves as the animation
+      MetalAudio.syncToAction(appState.combatAction, t);
+
+      if (shoulderRoot) shoulderRoot.setAttribute('transform', `translate(${shoulderX.toFixed(1)}, ${shoulderY.toFixed(1)})`);
+      if (upperArm) upperArm.setAttribute('transform', `rotate(${upperArmDeg.toFixed(1)})`);
+      if (forearm) forearm.setAttribute('transform', `translate(0, 64) rotate(${forearmDeg.toFixed(1)})`);
+      if (wristGroup) wristGroup.setAttribute('transform', `translate(0, 62) rotate(${wristDeg.toFixed(1)})`);
+      if (slashArc) slashArc.setAttribute('opacity', slashOpacity.toFixed(2));
+    }
+
+    function animationLoop(now) {
+      const t = now * 0.001;
+      appState.frameCount++;
+      if (now - appState.fpsLastCheck >= 500) {
+        const fps = Math.round((appState.frameCount * 1000) / (now - appState.fpsLastCheck));
+        const fpsEl = document.getElementById('fpsCounter');
+        if (fpsEl) fpsEl.textContent = `${Math.min(60, fps)} FPS`;
+        appState.frameCount = 0;
+        appState.fpsLastCheck = now;
+      }
+      updateCombatTester(t);
+      requestAnimationFrame(animationLoop);
+    }
+
+    function bindUI() {
+      // Unlock Web Audio on first user gesture (browser autoplay policy)
+      const unlockAudio = () => { MetalAudio.resume(); };
+      document.body.addEventListener('click', unlockAudio, { once: true });
+      document.body.addEventListener('keydown', unlockAudio, { once: true });
+
+      document.getElementById('swordSelect')?.addEventListener('change', e => {
+        appState.selectedSword = e.target.value;
+        mountAllViews();
+      });
+
+      document.querySelectorAll('.combat-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          MetalAudio.resume();
+          document.querySelectorAll('.combat-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          appState.combatAction = btn.getAttribute('data-combat');
+          // Immediate feedback hit when switching into a combat pose
+          const a = appState.combatAction;
+          if (a === 'slash') MetalAudio.playSwordClash(0.9);
+          else if (a === 'thrust') MetalAudio.playThrustHit(0.85);
+          else if (a === 'parry') MetalAudio.playShieldHit(0.8);
+          else if (a === 'inspect') MetalAudio.playScrape(0.5);
+        });
+      });
+
+      document.getElementById('toggleAudioBtn')?.addEventListener('click', e => {
+        MetalAudio.muted = !MetalAudio.muted;
+        e.currentTarget.classList.toggle('active', !MetalAudio.muted);
+        e.currentTarget.textContent = `⚔ Metal SFX: ${MetalAudio.muted ? 'OFF' : 'ON'}`;
+        if (!MetalAudio.muted) {
+          MetalAudio.resume();
+          MetalAudio.playSwordClash(0.6); // confirmation clank
+        }
+      });
+
+      document.getElementById('wristAngleSlider')?.addEventListener('input', e => {
+        appState.wristOffset = parseFloat(e.target.value);
+        document.getElementById('wristAngleLabel').textContent = `${appState.wristOffset}°`;
+      });
+
+      document.getElementById('toggleGridBtn')?.addEventListener('click', e => {
+        appState.showGrid = !appState.showGrid;
+        e.currentTarget.classList.toggle('active', appState.showGrid);
+        e.currentTarget.textContent = `Ruler Grid: ${appState.showGrid ? 'ON' : 'OFF'}`;
+        document.querySelectorAll('.weapon-grid-layer').forEach(el => {
+          el.style.display = appState.showGrid ? 'block' : 'none';
+        });
+      });
+
+      document.getElementById('togglePivotBtn')?.addEventListener('click', e => {
+        appState.showPivot = !appState.showPivot;
+        e.currentTarget.classList.toggle('active', appState.showPivot);
+        e.currentTarget.textContent = `Grip Pivot (0,0): ${appState.showPivot ? 'ON' : 'OFF'}`;
+        mountAllViews();
+      });
+
+      document.getElementById('toggleWearBtn')?.addEventListener('click', e => {
+        appState.showWear = !appState.showWear;
+        e.currentTarget.classList.toggle('active', appState.showWear);
+        e.currentTarget.textContent = `Battle Wear & Rust: ${appState.showWear ? 'ON' : 'OFF'}`;
+        mountAllViews();
+      });
+
+      // Export Modal
+      const modal = document.getElementById('exportModal');
+      const codeBlock = document.getElementById('exportCodeBlock');
+      document.getElementById('openExportModalBtn')?.addEventListener('click', () => {
+        codeBlock.textContent =
+          `/**\n * ADVENTURES OF SHURA — COMMON ENEMY SWORDS PROP MODULE\n * Standardized (0,0) Hand-Grip Pivot • 1u = 3.4px Scale\n */\n` +
+          `const CommonEnemySwordsRegistry = {\n` +
+          `  UNIT_PX: 3.4,\n` +
+          `  WEAPONS: ${JSON.stringify(COMMON_SWORDS_REGISTRY, null, 2)},\n` +
+          `  renderCommonSword: ${renderCommonSword.toString()}\n};\n`;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      });
+
+      document.getElementById('closeModalBtn')?.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      });
+
+      document.getElementById('copyCodeBtn')?.addEventListener('click', e => {
+        const range = document.createRange();
+        range.selectNodeContents(codeBlock);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        try {
+          document.execCommand('copy');
+          e.currentTarget.textContent = 'Copied ✓';
+          setTimeout(() => { e.currentTarget.textContent = 'Copy Module Code'; }, 2000);
+        } catch (err) {
+          e.currentTarget.textContent = 'Press Ctrl+C';
+        }
+      });
+    }
+
+    window.onload = function () {
+      mountAllViews();
+      bindUI();
+      requestAnimationFrame(animationLoop);
+    };
+  </script>
 </body>
 </html>
+
+
+in this code add some sound tracks for the sword for metal clanking metal
+when sword strikes each other or sword strikes shield.
